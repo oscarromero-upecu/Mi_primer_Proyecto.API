@@ -14,7 +14,7 @@ namespace Negocio.Repositorio.IRepositorio
         //Tarea para que realice una lista (IEnumerable<>) del objeto plano DTO (ResgistroPedidoDTO) que obtenga el idUsuario
         Task<IEnumerable<ResgistroPedidoDTO>> VerRegistroPedido(string idUsuario);
 
-        //
+        //Tarea para que realice una lista (IEnumerable<>) del objeto plano DTO (ConsumoPorUsuarioDTO) 
         Task<IEnumerable<ConsumoPorUsuarioDTO>> VerConsumoPorUsuario();
     }
 }

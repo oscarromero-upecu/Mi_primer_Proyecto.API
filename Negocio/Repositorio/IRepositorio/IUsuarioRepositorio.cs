@@ -2,8 +2,10 @@
 
 namespace Negocio.Repositorio.IRepositorio
 {
-    public class IUsuarioRepositorio
+    //Interfaz de almacenanimeto (UsuarioDTO) DTO
+    public interface IUsuarioRepositorio
     {
-        //Task<IEnumerable<UsuarioDTO>> ObtenerUsuarios();
+        //Crea una tarea que actue como interfaz para obtener en el objeto plano DTO (UsuarioDTO)
+        Task<IEnumerable<UsuarioDTO>> ObtenerUsuarios();
     }
 }

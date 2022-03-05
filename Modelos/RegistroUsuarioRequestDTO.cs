@@ -5,8 +5,6 @@
     {
         public string Nombre { get; set; }
         public string Email { get; set; }
-
-       
         public string NombrePedido { get; set; }
         public decimal DescuentoPedido { get; set; }
         public string Contrasena { get; set; }

@@ -9,9 +9,9 @@ namespace Negocio.Repositorio
 {//Repositorio que hereda la interfaz repostorio  
     public class PedidosRepositorio : IPedidoRepositorio
     {
-        //crea un objeto de la base de datos que solo sea visible y privado
+        //Instancia un objeto de la base de datos que solo sea visible y privado
         private readonly AppDbContext _db;
-        //crea un objeto con las funciones de mapeo que solo sea visible y privado
+        //Instancia un objeto con las funciones de mapeo que solo sea visible y privado
         private readonly IMapper _mapper;
 
         //Contructor es el iniciador de un objeto a partir de ua clase
@@ -27,10 +27,13 @@ namespace Negocio.Repositorio
         {
             //mapea como "pedido" desde el resgristroPedidoDTO "PedidoDTO" hacia la base de datos, entidad "RegistroPedido" 
             var pedido = _mapper.Map<RegistroPedido>(PedidoDTO);
+
             //luego como "nuevoPedido" agrega a la base de datos de "RegistroPedido" el registroPedidosDTO "PedidoDTO"
             var nuevoPedido = _db.RegistroPedido.Add(pedido);
+
             //await(esperar) es el break para la tarea y guarda los cambios asincronicos en la base de datos
             await _db.SaveChangesAsync();
+
             //retorna la entidad creada en la base de datos convertida a DTO
             return _mapper.Map<ResgistroPedidoDTO>(nuevoPedido.Entity);
         }
@@ -51,18 +54,18 @@ namespace Negocio.Repositorio
             return _mapper.Map<IEnumerable<ResgistroPedidoDTO>>(listaPedidos);
         }
 
-        //Tarea para que retorne de la entidad (RegistroPedido) el idUsuario de la DB en tipo lista (IEnumerable<>) convertida a DTO   
+        //Tarea para que retorne la consulta por grupo desde la base de datos en (IEnumerable<>) convertida a DTO   
         public async Task<IEnumerable<ConsumoPorUsuarioDTO>> VerConsumoPorUsuario()
         {
             return _db.RegistroPedido.GroupBy(registro => new
             {
                 registro.UserId,
-                registro.Usuario.Name,
+                registro.Usuario.Nombre,
                 registro.Usuario.DescuentoPedido,
             }).Select(grupo => new ConsumoPorUsuarioDTO
             {
                 IdUsuario = grupo.Key.UserId,
-                Nombre = grupo.Key.Name,
+                Nombre = grupo.Key.Nombre,
                 CantidadPedidos = grupo.Count(),
                 TotalAPagar = grupo.Sum(registro => registro.PrecioPedido - registro.Usuario.DescuentoPedido)
             });

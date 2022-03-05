@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Common
 {
+    //aqui solo va a tener un lugar para guardar el texto que sea unico para midificar
     public class Roles
     {
         public const string Administrador = "Administrador";

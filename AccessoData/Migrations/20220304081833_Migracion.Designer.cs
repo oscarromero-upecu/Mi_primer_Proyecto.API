@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AccessoData.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220226070921_MigracionInicial")]
-    partial class MigracionInicial
+    [Migration("20220304081833_Migracion")]
+    partial class Migracion
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -267,7 +267,7 @@ namespace AccessoData.Migrations
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
