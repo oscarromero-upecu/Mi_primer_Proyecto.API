@@ -4,9 +4,8 @@
     public class UsuarioDTO
     {
         public string Id { get; set; }
-        public string Nombre { get; set; }
-        public decimal DescuentoPedido { get; set;}
-        public DateTime FechaPedido { get; set; }
+        public string NombreUsuario { get; set; }
+       
 
     }
 }

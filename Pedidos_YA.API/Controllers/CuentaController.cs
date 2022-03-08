@@ -16,7 +16,7 @@ namespace ConsumoTelefonico.API.Controllers
 {
     //Plantilla de un contoller
     [ApiController]
-    [Route("CuentaController")]
+    [Route("[Controller]/[action]")]
     public class CuentaController : ControllerBase //hereda los metodos y procesos 
     {
         //clases que se crean automaticamente en el proyecto de la API 
@@ -41,6 +41,7 @@ namespace ConsumoTelefonico.API.Controllers
             _configuracionJwt = opciones.Value;
         }
 
+        [Authorize]
         //crear nuevo usuario
         [HttpPost]
         public async Task<IActionResult> RegistrarUsuario([FromBody] RegistroUsuarioRequestDTO registroUsuarioRequestDTO) // etiqueta FromBody que dice que tome este objeto DTO lo va a recibir desde el cuerpo de la peticion
@@ -52,8 +53,7 @@ namespace ConsumoTelefonico.API.Controllers
             {
                 UserName = registroUsuarioRequestDTO.Email,
                 Email = registroUsuarioRequestDTO.Email,
-                Nombre = registroUsuarioRequestDTO.Nombre,
-                DescuentoPedido = registroUsuarioRequestDTO.DescuentoPedido,
+                NombreUsuario = registroUsuarioRequestDTO.Nombre,
                 EmailConfirmed = true
             };
 
@@ -105,9 +105,8 @@ namespace ConsumoTelefonico.API.Controllers
                     Token = token,
                     Usuario = new UsuarioDTO
                     {
-                        Id = usuario.Id,
-                        Nombre = usuario.Nombre,
-                        DescuentoPedido = usuario.DescuentoPedido
+                        Id = usuario.Id.ToString(),
+                        NombreUsuario = usuario.NombreUsuario,
                     }
                 });
             }
@@ -119,11 +118,11 @@ namespace ConsumoTelefonico.API.Controllers
             });
         }
 
-        [Authorize(Roles = Roles.Administrador)]
-        [HttpPut("{idUsuario}")]
-        public async Task<IActionResult> ConvertirAdministrador(string idUsuario)
+        [Authorize]
+        [HttpPut("idUsuario")]
+        public async Task<IActionResult> ConvertirAdministrador(string Idusuario)
         {
-            var usuario = await _userManager.FindByIdAsync(idUsuario);
+            var usuario = await _userManager.FindByIdAsync(Idusuario);
             if (usuario == null)
                 return BadRequest();
 
@@ -152,15 +151,14 @@ namespace ConsumoTelefonico.API.Controllers
             //lista de claim, la informacion que quiero que gurade el token
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name,usuario.Nombre),//tipo de claim por default
+                new Claim(ClaimTypes.Name,usuario.NombreUsuario),//tipo de claim por default
                 new Claim(ClaimTypes.Email,usuario.Email),
                 new Claim("Id",usuario.Id),             //tipo de claim personalizado     
-                new Claim("Descuento",usuario.DescuentoPedido.ToString())
             };
 
             //vamos agregar los roles
             var roles = await _userManager.GetRolesAsync(await _userManager.FindByEmailAsync(usuario.Email));//
-            foreach (var rol in roles)//le ponga al rol a cada uno de los roles le ponga un claims
+            foreach (var rol in roles)//a cada uno de los roles le ponga una lista de claims (reclamos)
             {
                 claims.Add(new Claim(ClaimTypes.Role, rol));
             }

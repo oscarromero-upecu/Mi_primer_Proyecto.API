@@ -12,9 +12,10 @@ namespace AccessoData.Contexto
         }
 
         //Crea la entidad Usuario en la bse de datos tomando la clase Usuario
-        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Usuario> Usuario { get; set; }
 
         //Crea la entidad RegistroPedido en la bse de datos tomando la clase RegistroPedido
         public DbSet<RegistroPedido> RegistroPedido { get; set; }
+        public DbSet<Producto> Producto { get; set; }
     }
 }

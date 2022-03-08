@@ -22,7 +22,7 @@ namespace Negocio.Repositorio
 
         public async Task<IEnumerable<UsuarioDTO>> ObtenerUsuarios()
         {
-            return _mapper.Map<IEnumerable<UsuarioDTO>>(_db.Usuarios);
+            return _mapper.Map<IEnumerable<UsuarioDTO>>(_db.Usuario);
         }
     }
 }

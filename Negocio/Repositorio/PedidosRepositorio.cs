@@ -23,20 +23,20 @@ namespace Negocio.Repositorio
         }
 
         //Tarea asincronica para registrar un pedido en la base de datos con parametro de objeto DTO (PedidoDTO)
-        public async Task<ResgistroPedidoDTO> RegistrarPedido(ResgistroPedidoDTO PedidoDTO)
-        {
-            //mapea como "pedido" desde el resgristroPedidoDTO "PedidoDTO" hacia la base de datos, entidad "RegistroPedido" 
-            var pedido = _mapper.Map<RegistroPedido>(PedidoDTO);
+        //public async Task<ResgistroPedidoDTO> RegistrarPedido(ResgistroPedidoDTO PedidoDTO)
+        //{
+        //    //mapea como "pedido" desde el resgristroPedidoDTO "PedidoDTO" hacia la base de datos, entidad "RegistroPedido" 
+        //    var pedido = _mapper.Map<RegistroPedido>(PedidoDTO);
 
-            //luego como "nuevoPedido" agrega a la base de datos de "RegistroPedido" el registroPedidosDTO "PedidoDTO"
-            var nuevoPedido = _db.RegistroPedido.Add(pedido);
+        //    //luego como "nuevoPedido" agrega a la base de datos de "RegistroPedido" el registroPedidosDTO "PedidoDTO"
+        //    var nuevoPedido = _db.RegistroPedido.Add(pedido);
 
-            //await(esperar) es el break para la tarea y guarda los cambios asincronicos en la base de datos
-            await _db.SaveChangesAsync();
+        //    //await(esperar) es el break para la tarea y guarda los cambios asincronicos en la base de datos
+        //    await _db.SaveChangesAsync();
 
-            //retorna la entidad creada en la base de datos convertida a DTO
-            return _mapper.Map<ResgistroPedidoDTO>(nuevoPedido.Entity);
-        }
+        //    //retorna la entidad creada en la base de datos convertida a DTO
+        //    return _mapper.Map<ResgistroPedidoDTO>(nuevoPedido.Entity);
+        //}
 
         //Tarea para que retorne la entidad (RegistroPedido) de la base de datos en tipo lista (IEnumerable<>) convertida a DTO  
         public async Task<IEnumerable<ResgistroPedidoDTO>> VerRegistroPedido()
@@ -48,7 +48,7 @@ namespace Negocio.Repositorio
         public async Task<IEnumerable<ResgistroPedidoDTO>> VerRegistroPedido(string idUsuario)
         {
             //realiza consulta a la base de datos Donde el pedido.UserId == idUsuario para para extraer el ID de Usuario
-            var listaPedidos = _db.RegistroPedido.Where(pedido => pedido.UserId == idUsuario);
+            var listaPedidos = _db.RegistroPedido.Where(pedido => pedido.UsuarioId == idUsuario);
 
             //retorna una lista (IEnumerable<>) en DTO (ResgistroPedidoDTO) la consulta del ID de Usuario
             return _mapper.Map<IEnumerable<ResgistroPedidoDTO>>(listaPedidos);
@@ -57,17 +57,19 @@ namespace Negocio.Repositorio
         //Tarea para que retorne la consulta por grupo desde la base de datos en (IEnumerable<>) convertida a DTO   
         public async Task<IEnumerable<ConsumoPorUsuarioDTO>> VerConsumoPorUsuario()
         {
+            //cosulta primero por grupo luego selecion
             return _db.RegistroPedido.GroupBy(registro => new
             {
-                registro.UserId,
-                registro.Usuario.Nombre,
-                registro.Usuario.DescuentoPedido,
-            }).Select(grupo => new ConsumoPorUsuarioDTO
+                registro.UsuarioId,
+                registro.Usuario.NombreUsuario,
+                registro.Descuento,
+                // al hacer select no necesita agregar el retorno de IEnumerable
+            }).Select(grupo => new ConsumoPorUsuarioDTO//objetos dinamicos que  tiene caracteristicas propias
             {
-                IdUsuario = grupo.Key.UserId,
-                Nombre = grupo.Key.Nombre,
+                UsuarioId = grupo.Key.UsuarioId, //key accedde alos datos que agrupas
+                NombreUsuario = grupo.Key.NombreUsuario,
                 CantidadPedidos = grupo.Count(),
-                TotalAPagar = grupo.Sum(registro => registro.PrecioPedido - registro.Usuario.DescuentoPedido)
+                TotalConsumido = grupo.Sum(registro => registro.PrecioPedido - registro.Descuento)
             });
 
         }

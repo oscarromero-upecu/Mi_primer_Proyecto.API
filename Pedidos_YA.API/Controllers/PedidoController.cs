@@ -1,9 +1,9 @@
-﻿using Common;
+﻿using AccessoData;
+using AccessoData.Contexto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Modelos;
 using Negocio.Repositorio.IRepositorio;
-using System.Security.Claims;
 
 namespace Pedidos_YA.API.Controllers
 {
@@ -11,19 +11,61 @@ namespace Pedidos_YA.API.Controllers
     //Plantillade controlador API
     [ApiController]
     //Ruta
-    [Route("[PedidoController]")]
+    [Route("[Controller]")]
     public class PedidoController : ControllerBase //hereda propiedades y metodos para manejar solicitudes HTTP
     {
         private readonly IPedidoRepositorio _PedidoRepositorio;
+        private readonly AppDbContext _db;
 
         //Contructor de IPedidoRepositorio que recibe un objeto (pedidoRepositorio) 
-        public PedidoController(IPedidoRepositorio pedidoRepositorio)
+        public PedidoController(IPedidoRepositorio pedidoRepositorio, AppDbContext db)
         {
             _PedidoRepositorio = pedidoRepositorio;
+            _db = db;
         }
 
-        [Authorize(Roles = Roles.Administrador)]
+
+        [Authorize] /*(Roles = Roles.Administrador)]*/
         //recibe e identifica una accion que admite el verbo de accion HTTPGET
+
+        [Authorize]
+        [HttpPost ("RegistrarPedido")]
+        public async Task<IActionResult> RegistrarPedido([FromBody] RegistroPedidoRequestDTO registroPedidoRequestDTO)
+        {
+            if (registroPedidoRequestDTO is null || !ModelState.IsValid)
+                return BadRequest(); //retorna que es una solicitud mala
+            var productoid = _db.Producto.Where(p => p.NombreProducto == registroPedidoRequestDTO.NombreProducto)
+                .Select(p => p.Id).FirstOrDefault();
+            //nuevo Pedido
+            var Pedido = new RegistroPedido
+            {
+                ProductoId = productoid,
+                UsuarioId = registroPedidoRequestDTO.UsuarioId,
+                NombreCliente = registroPedidoRequestDTO.NombreCliente,
+                NombreProducto = registroPedidoRequestDTO.NombreProducto,
+                PrecioPedido = registroPedidoRequestDTO.PrecioPedido,
+                Descuento = registroPedidoRequestDTO.Descuento,
+                TotalPedido = (registroPedidoRequestDTO.PrecioPedido-registroPedidoRequestDTO.Descuento),
+                FechaDeRegistro = DateTime.Now,
+            };
+
+            if (Pedido== null) //valida si el pedido esta registrado (logrado)
+                return BadRequest(new ResgistroPedidoResponseDTO //si no es stisfactorio ponemos un mala solictud 
+                {
+                    ResgistroSatisfactorio = false,
+                    Mensaje="Error al registrar",
+                });
+
+            //luego como "nuevoPedido" agrega a la base de datos de "RegistroPedido" el registroPedidosDTO "PedidoDTO"
+            var nuevoPedido = _db.RegistroPedido.Add(Pedido);
+
+            //    //await(esperar) es el break para la tarea y guarda los cambios asincronicos en la base de datos
+            await _db.SaveChangesAsync();
+
+
+            return Ok(new ResgistroPedidoResponseDTO { ResgistroSatisfactorio = true, TotalPedido = Pedido.TotalPedido, });
+        }
+
         [HttpGet("VerPedidos")]
         //Tarea asincronica en donde obtiene un booleano ok de la interfaz
         public async Task<IActionResult> ObtenerPedido()
@@ -32,24 +74,6 @@ namespace Pedidos_YA.API.Controllers
             return Ok(await _PedidoRepositorio.VerRegistroPedido());
         }
 
-        [Authorize]
-        [HttpPost ("RegistrarPedido")]
-        public async Task<IActionResult> RegistrarPedido(ResgistroPedidoDTO registroPedidoDTO)
-        {
-            //mapeo 
-            var idUsuario = (HttpContext.User.Identity as ClaimsIdentity)?
-                .FindFirst("Id")?.Value; //busco el id
-
-            //validacion si esque el id del usuario no es administrador
-            if (idUsuario != registroPedidoDTO.UserId && !User.IsInRole(Roles.Administrador))
-                return Unauthorized("No tiene permisos para realizar esta operacion");
-
-            registroPedidoDTO.FechaPedido = DateTime.Now;// agregar la fecha actual
-            var resultado = await _PedidoRepositorio.RegistrarPedido(registroPedidoDTO);// variable asignada con la instacion del registroPedido
-            return Ok(resultado);
-        }
-
-       
         [HttpGet("ObtenerPedidoporUsuario")]
         public async Task<IActionResult> ObtenerPedido(string idUsuario)
         {
@@ -57,7 +81,7 @@ namespace Pedidos_YA.API.Controllers
         }
 
         //
-        [Authorize(Roles = Roles.Administrador)]
+        //[Authorize(Roles = Roles.Administrador)]
         [HttpGet("ObtenerConsumoPedidos")]
         public async Task<IActionResult> ObtenerConsumoPedidos()
         {

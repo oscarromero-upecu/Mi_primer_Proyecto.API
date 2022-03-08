@@ -6,7 +6,7 @@ namespace Negocio.Repositorio.IRepositorio
     public interface IPedidoRepositorio
     {
         //Crea una tarea que actue como interfaz para registrar en el objeto plano DTO (ResgistroPedidoDTO)  
-        Task<ResgistroPedidoDTO> RegistrarPedido(ResgistroPedidoDTO PedidoDTO);
+        //Task<ResgistroPedidoDTO> RegistrarPedido(RegistroPedidoRequestDTO registroPedidoRequestDTO);
 
         //Crea una tarea para que realice una lista (IEnumerable<>) del objeto plano DTO (ResgistroPedidoDTO)
         Task<IEnumerable<ResgistroPedidoDTO>> VerRegistroPedido();

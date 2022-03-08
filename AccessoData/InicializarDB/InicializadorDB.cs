@@ -38,10 +38,9 @@ namespace AccessoData.InicializarDB
             //crear usuario administrador
             var usuario = new Usuario
             {
-                Nombre = "Admin",
+                NombreUsuario = "Admin",
                 UserName = "chicuritas@example.com",
                 Email = "chicuritas@example.com",
-                DescuentoPedido = 3,
                 EmailConfirmed = true
             };
 

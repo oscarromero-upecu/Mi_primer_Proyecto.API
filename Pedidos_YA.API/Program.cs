@@ -23,7 +23,7 @@ builder.Services.AddControllers();
 //Biulder (patron) de diseno estandar para la confirmacion de la primera frase (Bearer) de autienticacion que iria junto al token 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Taller API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pedidos YA! API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -44,8 +44,7 @@ builder.Services.AddSwaggerGen(c =>
                       new string[] { }
                     }
                 });
-}); 
-
+});
 
 //Construcctor definido para la conexion a la base de datos SQLServer al DBvirtual
 builder.Services.AddDbContext<AppDbContext>(opciones => opciones.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnetcion")));
@@ -86,6 +85,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 //Repositorios: AddScoped realiza la instancia del tipo de servicio, es decir llamas a una copia exacta de la clase
 builder.Services.AddScoped<IPedidoRepositorio, PedidosRepositorio>();
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
+builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
 
 //Inicializador DB, agregamos la interfaz 
 builder.Services.AddScoped<IInicializadorDB, InicializadorDB>();

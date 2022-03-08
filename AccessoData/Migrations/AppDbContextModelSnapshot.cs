@@ -22,6 +22,33 @@ namespace AccessoData.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("AccessoData.Producto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("FechaDeRegistro")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NombreProducto")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PrecioProducto")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Producto");
+                });
+
             modelBuilder.Entity("AccessoData.RegistroPedido", b =>
                 {
                     b.Property<int>("Id")
@@ -30,23 +57,38 @@ namespace AccessoData.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime>("FechaPedido")
+                    b.Property<decimal>("Descuento")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("FechaDeRegistro")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("NombrePedido")
+                    b.Property<string>("NombreCliente")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NombreProducto")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("PrecioPedido")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("UserId")
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalPedido")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("UsuarioId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ProductoId");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("RegistroPedido");
                 });
@@ -259,13 +301,10 @@ namespace AccessoData.Migrations
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<decimal>("DescuentoPedido")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("FechaCreacion")
+                    b.Property<DateTime>("FechaDeRegistro")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Nombre")
+                    b.Property<string>("NombreUsuario")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -274,11 +313,19 @@ namespace AccessoData.Migrations
 
             modelBuilder.Entity("AccessoData.RegistroPedido", b =>
                 {
-                    b.HasOne("AccessoData.Usuario", "Usuario")
+                    b.HasOne("AccessoData.Producto", "Producto")
                         .WithMany("Pedidos")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ProductoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("AccessoData.Usuario", "Usuario")
+                        .WithMany("Pedidos")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Producto");
 
                     b.Navigation("Usuario");
                 });
@@ -332,6 +379,11 @@ namespace AccessoData.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("AccessoData.Producto", b =>
+                {
+                    b.Navigation("Pedidos");
                 });
 
             modelBuilder.Entity("AccessoData.Usuario", b =>

@@ -29,9 +29,8 @@ namespace AccessoData.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DescuentoPedido = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    NombreUsuario = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FechaDeRegistro = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -50,6 +49,22 @@ namespace AccessoData.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Producto",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UsuarioId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NombreProducto = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PrecioProducto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    FechaDeRegistro = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Producto", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -164,18 +179,28 @@ namespace AccessoData.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    NombrePedido = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UsuarioId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProductoId = table.Column<int>(type: "int", nullable: false),
+                    NombreProducto = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NombreCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PrecioPedido = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    FechaPedido = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Descuento = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalPedido = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    FechaDeRegistro = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RegistroPedido", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RegistroPedido_AspNetUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_RegistroPedido_AspNetUsers_UsuarioId",
+                        column: x => x.UsuarioId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RegistroPedido_Producto_ProductoId",
+                        column: x => x.ProductoId,
+                        principalTable: "Producto",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -220,9 +245,14 @@ namespace AccessoData.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RegistroPedido_UserId",
+                name: "IX_RegistroPedido_ProductoId",
                 table: "RegistroPedido",
-                column: "UserId");
+                column: "ProductoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RegistroPedido_UsuarioId",
+                table: "RegistroPedido",
+                column: "UsuarioId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -250,6 +280,9 @@ namespace AccessoData.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Producto");
         }
     }
 }

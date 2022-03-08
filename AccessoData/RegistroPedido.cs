@@ -10,12 +10,24 @@ namespace AccessoData
         [Key]
         public int Id { get; set; }
         //clave foranea
-        public string UserId { get; set; }
-        [ForeignKey ("UserId")]
+        
+        public string UsuarioId { get; set; }
+
+        [ForeignKey("UsuarioId")]
         public Usuario Usuario { get; set; }
-        public string NombrePedido { get; set; }
+        public int ProductoId { get; set; }
+
+        [ForeignKey("ProductoId")]
+        public Producto Producto { get; set; }
+        public string NombreProducto { get; set; }
+
+        public string NombreCliente { get; set; }
         public decimal PrecioPedido { get; set; }
-        public DateTime FechaPedido { get; set; } 
+        public decimal Descuento { get; set; }
+        public decimal TotalPedido { get; set; }
+        public DateTime FechaDeRegistro { get; set; }
 
     }
+
 }
+

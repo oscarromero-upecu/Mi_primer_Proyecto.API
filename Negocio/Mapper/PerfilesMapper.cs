@@ -13,6 +13,7 @@ namespace Negocio.Mapper
         {
             
             CreateMap<RegistroPedido, ResgistroPedidoDTO>().ReverseMap();
+            CreateMap<Producto, ProductoDTO>().ReverseMap();
             CreateMap<Usuario, UsuarioDTO>().ReverseMap();
         }
     }
