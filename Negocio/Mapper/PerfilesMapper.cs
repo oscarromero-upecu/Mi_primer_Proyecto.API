@@ -8,7 +8,7 @@ namespace Negocio.Mapper
     //vinculo entre DB y DTO para que le CRUD (crear,leer,actualizar,borrar) pueda relizarce de manera directa
     public class PerfilesMapper : Profile //hereda perfiles preestablecidos de mapeo
     {
-        //metodo donde permite vincular la entidad (RegistroPedido) con en objeto plano (ResgistroPedidoDTO) y viceversa
+        //metodo donde crear el mapa y permite vincular las entidades virtuales con en objeto plano DTO y viceversa
         public PerfilesMapper()
         {
             

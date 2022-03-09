@@ -1,9 +1,11 @@
 ﻿using AccessoData;
 using AccessoData.Contexto;
+using Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Modelos;
 using Negocio.Repositorio.IRepositorio;
+using System.Data.Entity.Infrastructure;
 
 namespace Pedidos_YA.API.Controllers
 {
@@ -24,34 +26,49 @@ namespace Pedidos_YA.API.Controllers
             _db = db;
         }
 
-        [Authorize]
+        #region Producto
+        [Authorize(Roles = Roles.Administrador)]
         [HttpPost]
         public async Task<IActionResult> RegistrarProducto([FromBody] RegistroProductoRequestDTO registroProductoRequestDTO)
         {
-            if (registroProductoRequestDTO is null || !ModelState.IsValid)
-                return BadRequest(); //retorna que es una solicitud mala
-            //nuevo usuario
-            var Producto = new Producto
+            try
             {
-                UsuarioId = registroProductoRequestDTO.UsuarioId,
-                NombreProducto = registroProductoRequestDTO.NombreProducto,
-                PrecioProducto = registroProductoRequestDTO.PrecioProducto,
-                FechaDeRegistro = DateTime.Now,
-            };
-            //luego como "nuevoPedido" agrega a la base de datos de "RegistroPedido" el registroPedidosDTO "PedidoDTO"
-            var nuevoPedido = _db.Producto.Add(Producto);
+                if (registroProductoRequestDTO.UsuarioId == "string" ||
+                 registroProductoRequestDTO.NombreProducto == "string" ||
+                 registroProductoRequestDTO.PrecioProducto == 0)
+                    return BadRequest(new MensajeResponseDTO { Mensaje = "Los campos estan incompletos" }); //retorna que es una solicitud mala
+                                                                                                             //nuevo usuario
+                var Producto = new Producto
+                {
+                    UsuarioId = registroProductoRequestDTO.UsuarioId,
+                    NombreProducto = registroProductoRequestDTO.NombreProducto,
+                    PrecioProducto = registroProductoRequestDTO.PrecioProducto,
+                    FechaDeRegistro = DateTime.Now,
+                };
+                //luego como "nuevoPedido" agrega a la base de datos de "RegistroPedido" el registroPedidosDTO "PedidoDTO"
+                var nuevoPedido = _db.Producto.Add(Producto);
 
-            //    //await(esperar) es el break para la tarea y guarda los cambios asincronicos en la base de datos
-            await _db.SaveChangesAsync();
+                //    //await(esperar) es el break para la tarea y guarda los cambios asincronicos en la base de datos
+                await _db.SaveChangesAsync();
 
-            if (Producto == null) //valida si el pedido esta registrado (logrado)
-                return BadRequest(new ResgistroPedidoResponseDTO //si no es stisfactorio ponemos un mala solictud 
+                if (Producto == null) //valida si el pedido esta registrado (logrado)
+                    return BadRequest(new MensajeResponseDTO //si no es stisfactorio ponemos un mala solictud 
+                    {
+                        ResgistroSatisfactorio = false,
+                        Mensaje = "Error al registrar"
+                    });
+
+                return Ok(new MensajeResponseDTO { ResgistroSatisfactorio = true, Mensaje = "GRACIAS!" });
+            }
+            catch (Exception)
+            {
+                return BadRequest(new MensajeResponseDTO //si no es stisfactorio ponemos un mala solictud 
                 {
                     ResgistroSatisfactorio = false,
                     Mensaje = "Error al registrar"
                 });
+            }
 
-            return Ok(new ResgistroPedidoResponseDTO { ResgistroSatisfactorio = true });
         }
 
         [Authorize]
@@ -62,7 +79,31 @@ namespace Pedidos_YA.API.Controllers
             return Ok(await _productoRepositorio.ObtenerProducto());
 
         }
+
+        [Authorize(Roles = Roles.Administrador)]
+        [HttpDelete("EliminarProducto")]
+        public async Task<IActionResult> EliminarProducto(int ID)
+        {
+            try
+            {
+                var registro = _db.Producto.Where(r => r.Id == ID).FirstOrDefault(); // Consulta el id
+                if (registro == null)
+                {
+                    return BadRequest("Error al Elminar");
+                }
+                _db.Producto.Remove(registro);//elimina el registro
+                await _db.SaveChangesAsync(); //guarda los cambios
+                return RedirectToAction("Index");//redirecciona el index
+            }
+            catch (DbUpdateException /*ex*/)
+            {
+
+                return BadRequest("Error al Elminar");
+            }
+
+        }
+        #endregion
     }
 
-    
 }
+

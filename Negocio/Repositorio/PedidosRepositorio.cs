@@ -22,22 +22,6 @@ namespace Negocio.Repositorio
             _mapper = mapper;
         }
 
-        //Tarea asincronica para registrar un pedido en la base de datos con parametro de objeto DTO (PedidoDTO)
-        //public async Task<ResgistroPedidoDTO> RegistrarPedido(ResgistroPedidoDTO PedidoDTO)
-        //{
-        //    //mapea como "pedido" desde el resgristroPedidoDTO "PedidoDTO" hacia la base de datos, entidad "RegistroPedido" 
-        //    var pedido = _mapper.Map<RegistroPedido>(PedidoDTO);
-
-        //    //luego como "nuevoPedido" agrega a la base de datos de "RegistroPedido" el registroPedidosDTO "PedidoDTO"
-        //    var nuevoPedido = _db.RegistroPedido.Add(pedido);
-
-        //    //await(esperar) es el break para la tarea y guarda los cambios asincronicos en la base de datos
-        //    await _db.SaveChangesAsync();
-
-        //    //retorna la entidad creada en la base de datos convertida a DTO
-        //    return _mapper.Map<ResgistroPedidoDTO>(nuevoPedido.Entity);
-        //}
-
         //Tarea para que retorne la entidad (RegistroPedido) de la base de datos en tipo lista (IEnumerable<>) convertida a DTO  
         public async Task<IEnumerable<ResgistroPedidoDTO>> VerRegistroPedido()
         {
@@ -62,12 +46,13 @@ namespace Negocio.Repositorio
             {
                 registro.UsuarioId,
                 registro.Usuario.NombreUsuario,
-                registro.Descuento,
+                registro.NombreCliente,
                 // al hacer select no necesita agregar el retorno de IEnumerable
             }).Select(grupo => new ConsumoPorUsuarioDTO//objetos dinamicos que  tiene caracteristicas propias
             {
                 UsuarioId = grupo.Key.UsuarioId, //key accedde alos datos que agrupas
                 NombreUsuario = grupo.Key.NombreUsuario,
+                NombreCliente = grupo.Key.NombreCliente,
                 CantidadPedidos = grupo.Count(),
                 TotalConsumido = grupo.Sum(registro => registro.PrecioPedido - registro.Descuento)
             });

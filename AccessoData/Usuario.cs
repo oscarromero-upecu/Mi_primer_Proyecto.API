@@ -10,8 +10,10 @@ namespace AccessoData
     {
         //adicional a los parametros que da el IdentityUser se declara en este caso 03 atributos para la base de datos
         public string NombreUsuario { get; set; }
-        public DateTime FechaDeRegistro { get; set; } 
+        public DateTime FechaDeRegistro { get; set; }
 
+
+        //Icollection indica que en usuarios puede tener atributos de la entidad Registro Pedido
         public ICollection<RegistroPedido> Pedidos { get; set; }
        
        

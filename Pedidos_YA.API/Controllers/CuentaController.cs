@@ -1,4 +1,5 @@
 ﻿using AccessoData;
+using AccessoData.Contexto;
 using Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Modelos;
 using Negocio.Repositorio.IRepositorio;
 using Pedidos_YA.API;
+using System.Data.Entity.Infrastructure;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -20,6 +22,7 @@ namespace ConsumoTelefonico.API.Controllers
     public class CuentaController : ControllerBase //hereda los metodos y procesos 
     {
         //clases que se crean automaticamente en el proyecto de la API 
+        private readonly AppDbContext _db;
         private readonly SignInManager<Usuario> _signInManager; //instancia la clase 
         private readonly UserManager<Usuario> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -28,12 +31,14 @@ namespace ConsumoTelefonico.API.Controllers
 
         //constructor
         public CuentaController(
+            AppDbContext db,
             UserManager<Usuario> userManager,
             SignInManager<Usuario> signInManager,
             RoleManager<IdentityRole> roleManager,
             IOptions<ConfiguracionJWT> opciones, //Ioptions entrega el valor que se define en Programs.cs del JWT
             IUsuarioRepositorio usuarioRepositorio)
         {
+            _db = db;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
@@ -41,7 +46,8 @@ namespace ConsumoTelefonico.API.Controllers
             _configuracionJwt = opciones.Value;
         }
 
-        [Authorize]
+        #region Usuario
+        [Authorize(Roles = Roles.Administrador)]
         //crear nuevo usuario
         [HttpPost]
         public async Task<IActionResult> RegistrarUsuario([FromBody] RegistroUsuarioRequestDTO registroUsuarioRequestDTO) // etiqueta FromBody que dice que tome este objeto DTO lo va a recibir desde el cuerpo de la peticion
@@ -118,7 +124,7 @@ namespace ConsumoTelefonico.API.Controllers
             });
         }
 
-        [Authorize]
+        [Authorize(Roles = Roles.Administrador)]
         [HttpPut("idUsuario")]
         public async Task<IActionResult> ConvertirAdministrador(string Idusuario)
         {
@@ -138,6 +144,31 @@ namespace ConsumoTelefonico.API.Controllers
             return Ok(await _usuarioRepositorio.ObtenerUsuarios());
         }
 
+        [Authorize(Roles = Roles.Administrador)]
+        [HttpDelete("EliminarUsuario")]
+        public async Task<IActionResult> EliminarUsuario(string ID)
+        {
+            try
+            {
+                var registro = _db.Usuario.Where(u => u.Id == ID).FirstOrDefault(); // Consulta el id
+                if (registro == null)
+                {
+                    return BadRequest("Error al Elminar");
+                }
+                _db.Usuario.Remove(registro);//elimina el registro
+                await _db.SaveChangesAsync(); //guarda los cambios
+                return RedirectToAction("Index");//redirecciona el index
+            }
+            catch (DbUpdateException /*ex*/)
+            {
+
+                return BadRequest("Error al Elminar");
+            }
+
+        }
+        #endregion
+
+        #region Credenciales / Claims / Roles 
         //vamos a incriptar el secreto (llave)
         private SigningCredentials ObtenerCredencialesInicioSesion()
         {
@@ -165,5 +196,7 @@ namespace ConsumoTelefonico.API.Controllers
 
             return claims; //devolver la lista
         }
+        #endregion
+
     }
 }

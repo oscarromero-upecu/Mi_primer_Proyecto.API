@@ -13,6 +13,8 @@ namespace AccessoData
         public string NombreProducto { get; set; }
         public decimal PrecioProducto { get; set; }
         public DateTime FechaDeRegistro { get; set; }
+
+        //Icollection indica que ep producto puede tener atributos de la entidad Registro Pedido
         public ICollection<RegistroPedido> Pedidos { get; set; }
 
 

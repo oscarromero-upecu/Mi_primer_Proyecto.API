@@ -8,6 +8,7 @@ namespace AccessoData.InicializarDB
 {
     public interface IInicializadorDB
     {
+        // interfaz para la inicializacion
         void InicalizarDB();
     }
 }

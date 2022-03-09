@@ -16,6 +16,8 @@ namespace AccessoData.Contexto
 
         //Crea la entidad RegistroPedido en la bse de datos tomando la clase RegistroPedido
         public DbSet<RegistroPedido> RegistroPedido { get; set; }
+
+        //Crea la entidad Producto en la bse de datos tomando la clase Producto
         public DbSet<Producto> Producto { get; set; }
     }
 }

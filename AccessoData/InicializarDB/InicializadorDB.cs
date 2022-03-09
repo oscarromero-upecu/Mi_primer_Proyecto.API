@@ -44,7 +44,7 @@ namespace AccessoData.InicializarDB
                 EmailConfirmed = true
             };
 
-            //una vez que ya esta la variable usuario agregamos el asuario
+            //Creamos el usuario admin + su contrasena
             _userManager.CreateAsync(usuario, "Admin*1234").GetAwaiter().GetResult();
 
             //agragamos el rol al ausuario adminstrador
