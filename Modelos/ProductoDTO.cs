@@ -10,6 +10,7 @@ namespace Modelos
     public class ProductoDTO
     {
         
+        public string Id { get; set; }
         public string UsuarioId { get; set; }
         public string NombreProducto { get; set; }
         public decimal PrecioProducto { get; set; }

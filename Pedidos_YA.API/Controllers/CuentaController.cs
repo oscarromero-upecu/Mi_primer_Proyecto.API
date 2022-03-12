@@ -71,7 +71,7 @@ namespace ConsumoTelefonico.API.Controllers
                     ResgistroSatisfactorio = false,
                     Errores = resultadoCreacion.Errors.Select(error => error.Description) //linkqui de ete error consulta a la base de datos que descriva lista de errores
                 });
-
+            await _db.SaveChangesAsync(); //guarda los cambios
             return Ok(new ResgistroUsuarioResponseDTO { ResgistroSatisfactorio = true });
         }
         //Crear para iniciar sesion
@@ -159,7 +159,7 @@ namespace ConsumoTelefonico.API.Controllers
                 await _db.SaveChangesAsync(); //guarda los cambios
                 return RedirectToAction("Index");//redirecciona el index
             }
-            catch (DbUpdateException /*ex*/)
+            catch (Exception)
             {
 
                 return BadRequest("Error al Elminar");

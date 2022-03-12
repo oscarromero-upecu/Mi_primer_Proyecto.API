@@ -95,7 +95,7 @@ namespace Pedidos_YA.API.Controllers
                 await _db.SaveChangesAsync(); //guarda los cambios
                 return RedirectToAction("Index");//redirecciona el index
             }
-            catch (DbUpdateException /*ex*/)
+            catch (Exception)
             {
 
                 return BadRequest("Error al Elminar");
