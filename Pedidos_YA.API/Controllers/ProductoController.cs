@@ -27,51 +27,26 @@ namespace Pedidos_YA.API.Controllers
         }
 
         #region Producto
-        [Authorize(Roles = Roles.Administrador)]
+        //[Authorize(Roles = Roles.Administrador)]
         [HttpPost]
         public async Task<IActionResult> RegistrarProducto([FromBody] RegistroProductoRequestDTO registroProductoRequestDTO)
         {
-            try
+            
+             try
             {
-                if (registroProductoRequestDTO.UsuarioId == "string" ||
-                 registroProductoRequestDTO.NombreProducto == "string" ||
-                 registroProductoRequestDTO.PrecioProducto == 0)
+                if (registroProductoRequestDTO is null || !ModelState.IsValid)
                     return BadRequest(new MensajeResponseDTO { Mensaje = "Los campos estan incompletos" }); //retorna que es una solicitud mala
-                                                                                                             //nuevo usuario
-                var Producto = new Producto
-                {
-                    UsuarioId = registroProductoRequestDTO.UsuarioId,
-                    NombreProducto = registroProductoRequestDTO.NombreProducto,
-                    PrecioProducto = registroProductoRequestDTO.PrecioProducto,
-                    FechaDeRegistro = DateTime.Now,
-                };
-                //luego como "nuevoPedido" agrega a la base de datos de "RegistroPedido" el registroPedidosDTO "PedidoDTO"
-                var nuevoPedido = _db.Producto.Add(Producto);
-
-                //    //await(esperar) es el break para la tarea y guarda los cambios asincronicos en la base de datos
-                await _db.SaveChangesAsync();
-
-                if (Producto == null) //valida si el pedido esta registrado (logrado)
-                    return BadRequest(new MensajeResponseDTO //si no es stisfactorio ponemos un mala solictud 
-                    {
-                        ResgistroSatisfactorio = false,
-                        Mensaje = "Error al registrar"
-                    });
-
-                return Ok(new MensajeResponseDTO { ResgistroSatisfactorio = true, Mensaje = "GRACIAS!" });
+                return Ok(await _productoRepositorio.RegistrarProducto(registroProductoRequestDTO));
             }
             catch (Exception)
             {
-                return BadRequest(new MensajeResponseDTO //si no es stisfactorio ponemos un mala solictud 
-                {
-                    ResgistroSatisfactorio = false,
-                    Mensaje = "Error al registrar"
-                });
+
+                return BadRequest(new MensajeResponseDTO { Mensaje = "Error de controlador" }); //retorna que es una solicitud mala
             }
 
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         public async Task<ActionResult> ObtenerProducto()// 
         {

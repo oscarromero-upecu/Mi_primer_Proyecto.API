@@ -31,66 +31,20 @@ namespace Pedidos_YA.API.Controllers
         //recibe e identifica una accion que admite el verbo de accion HTTPGET
         [Authorize]
         [HttpPost ("RegistrarPedido")]
-        public async Task<IActionResult> RegistrarPedido([FromBody] RegistroPedidoRequestDTO registroPedidoRequestDTO)
+        public async Task<IActionResult> RegistrarPedido(RegistroPedidoRequestDTO registroPedidoRequestDTO)
         {
-            if (registroPedidoRequestDTO.UsuarioId == "string" ||
-                registroPedidoRequestDTO.NombreCliente == "string" ||
-                registroPedidoRequestDTO.NombreProducto == "string"||
-                registroPedidoRequestDTO.PrecioPedido == 0)
-                return BadRequest(new MensajeResponseDTO { Mensaje = "Los campos estan incompletos" }); //retorna que es una solicitud mala
             try
             {
-                //Consulta a la base de datos para obtener el id de producto
-                var productoid = _db.Producto.Where(p => p.NombreProducto == registroPedidoRequestDTO.NombreProducto)
-                    .Select(p => p.Id).FirstOrDefault(); //firstOrdefault obtine el registro en la consulta
-
-                //Si la consulta no es satisfactoria
-                if (productoid <= 0)
-                {
-                    return BadRequest(new MensajeResponseDTO 
-                    { Mensaje = "El Nombre del Producto no existe (Cree un nuevo) o ingrese nombre del producto correcto" 
-                    }); //retorna que es una solicitud mala
-                }
-
-                //nuevo Pedido
-                var Pedido = new RegistroPedido
-                {
-                    ProductoId = productoid,
-                    UsuarioId = registroPedidoRequestDTO.UsuarioId,
-                    NombreCliente = registroPedidoRequestDTO.NombreCliente,
-                    NombreProducto = registroPedidoRequestDTO.NombreProducto,
-                    PrecioPedido = registroPedidoRequestDTO.PrecioPedido,
-                    Descuento = registroPedidoRequestDTO.Descuento,
-                    TotalPedido = (registroPedidoRequestDTO.PrecioPedido - registroPedidoRequestDTO.Descuento),
-                    FechaDeRegistro = DateTime.Now,
-                };
-
-                if (Pedido == null) //valida si el pedido esta registrado (logrado)
-                    return BadRequest(new MensajeResponseDTO //si no es stisfactorio ponemos un mala solictud 
-                    {
-                        ResgistroSatisfactorio = false,
-                        Mensaje = "Error al registrar",
-                    });
-
-                //luego como "nuevoPedido" agrega a la base de datos de "RegistroPedido" el registroPedidosDTO "PedidoDTO"
-                var nuevoPedido = _db.RegistroPedido.Add(Pedido);
-
-                //    //await(esperar) es el break para la tarea y guarda los cambios asincronicos en la base de datos
-                await _db.SaveChangesAsync();
-
-
-                return Ok(new MensajeResponseDTO { ResgistroSatisfactorio = true, TotalPedido = Pedido.TotalPedido, Mensaje = "GRACIAS!"});
+                if (registroPedidoRequestDTO is null || !ModelState.IsValid)
+                    return BadRequest(new MensajeResponseDTO { Mensaje = "Los campos estan incompletos" }); //retorna que es una solicitud mala
+                return Ok(await _PedidoRepositorio.RegistrarPedido(registroPedidoRequestDTO));
             }
             catch (Exception)
             {
 
-                return BadRequest(new MensajeResponseDTO //si no es stisfactorio ponemos un mala solictud 
-                {
-                    ResgistroSatisfactorio = false,
-                    Mensaje = "Error al registrar",
-                });
-
+                return BadRequest(new MensajeResponseDTO { Mensaje = "Error de controlador" }); //retorna que es una solicitud mala
             }
+
 
         }
 
@@ -121,21 +75,14 @@ namespace Pedidos_YA.API.Controllers
         {
             try
             {
-                var registro = _db.RegistroPedido.Where(r=> r.Id == ID).FirstOrDefault(); // Consulta el id
-                if (registro == null)
-                {
-                    return BadRequest("Error al Elminar");
-                }
-                _db.RegistroPedido.Remove(registro);//elimina el registro
-                await _db.SaveChangesAsync(); //guarda los cambios
-                return RedirectToAction("Index");//redirecciona el index
+                return Ok(await _PedidoRepositorio.EliminarPedido(ID));
             }
             catch (Exception)
             {
 
-                return BadRequest("Error al Elminar");
+                return BadRequest(new MensajeResponseDTO { Mensaje = "Error de controlador" }); //retorna que es una solicitud mala
             }
-          
+
         }
 #endregion
     }

@@ -9,7 +9,6 @@ using Microsoft.IdentityModel.Tokens;
 using Modelos;
 using Negocio.Repositorio.IRepositorio;
 using Pedidos_YA.API;
-using System.Data.Entity.Infrastructure;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -137,7 +136,7 @@ namespace ConsumoTelefonico.API.Controllers
             return Ok();
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         public async Task<IActionResult> ObtenerUsuarios()
         {
